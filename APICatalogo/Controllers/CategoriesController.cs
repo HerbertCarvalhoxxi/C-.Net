@@ -24,9 +24,9 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<CategoryDTO>> GetCategories()
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
     {
-       IEnumerable<Category> categories = _unityOfWork.CategoryRepository.GetAll();
+       IEnumerable<Category> categories = await _unityOfWork.CategoryRepository.GetAllAsync();
 
        IEnumerable<CategoryDTO> categoriesDTO = categories.ToCategoryDTOList();
 
@@ -34,9 +34,9 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("{id}", Name = "ObterCategoria")]
-    public ActionResult<CategoryDTO> GetCategory(int id)
+    public async Task<ActionResult<CategoryDTO>> GetCategory(int id)
     {
-        Category category = _unityOfWork.CategoryRepository.Get(c => c.CategoryId == id);
+        Category category = await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == id);
         
 
         if (category is null)
@@ -51,10 +51,23 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("Pagination")]
-    public ActionResult<List<Category>> GetPagination([FromQuery]CategoryParams categoryParams)
+    public async Task<ActionResult<IEnumerable<Category>>> GetPagination([FromQuery]CategoryParams categoryParams)
     {
-        PagedList<Category> categories = _unityOfWork.CategoryRepository.GetPagedList(categoryParams);
+        PagedList<Category> categories = await _unityOfWork.CategoryRepository.GetPagedListAsync(categoryParams);
+        return Ok(GetCategoriesFil(categories));
+    }
 
+    [HttpGet("filter/name/pagination")]
+    public async Task<ActionResult<IEnumerable<Category>>> FilterName([FromQuery] FilterNameCategory filterNameCategory)
+    {
+        PagedList<Category> categories = await _unityOfWork.CategoryRepository.GetFiltedAsync(filterNameCategory);
+        IEnumerable<Category> filtedCategories = GetCategoriesFil(categories);
+        return Ok(filtedCategories);
+
+    }
+
+    private IEnumerable<Category> GetCategoriesFil(PagedList<Category> categories)
+    {
         var metadata = new
         {
             categories.TotalCount,
@@ -71,7 +84,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult CreateCategory(CategoryDTO categoryDTO)
+    public async Task<ActionResult> CreateCategory(CategoryDTO categoryDTO)
     {
         if (categoryDTO is null)
             return BadRequest("Dados inválidos");
@@ -79,7 +92,7 @@ public class CategoriesController : ControllerBase
         Category category = categoryDTO.ToCategory();
 
         _unityOfWork.CategoryRepository.Create(category);
-        _unityOfWork.Commit();
+        await _unityOfWork.CommitAsync();
 
         CategoryDTO categoryResponse = category.ToCategoryDTO();
 
@@ -87,7 +100,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public ActionResult UpdateCategory(int id, CategoryDTO categoryDTO)
+    public async Task<ActionResult> UpdateCategory(int id, CategoryDTO categoryDTO)
     {
         if (categoryDTO.CategoryId != id)
         {
@@ -98,7 +111,7 @@ public class CategoriesController : ControllerBase
         Category category = categoryDTO.ToCategory();
 
         _unityOfWork.CategoryRepository.Update(category);
-        _unityOfWork.Commit();
+        await _unityOfWork.CommitAsync();
 
         CategoryDTO categoryResponse = category.ToCategoryDTO();
         
@@ -106,7 +119,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete]
-    public ActionResult DeleteCategory(Category category)
+    public async Task<ActionResult> DeleteCategory(Category category)
     {
         Category Deletedcategory = _unityOfWork.CategoryRepository.Delete(category);
 
@@ -114,7 +127,7 @@ public class CategoriesController : ControllerBase
         {   
             return NotFound();
         }
-        _unityOfWork.Commit();
+        await _unityOfWork.CommitAsync();
         return Ok(Deletedcategory);
     }
 

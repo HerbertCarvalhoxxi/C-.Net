@@ -113,3 +113,4 @@ C:\Users\Bert\source\repos\APICatalogo\APICatalogo\bin\Debug\net8.0\Microsoft.As
 C:\Users\Bert\source\repos\APICatalogo\APICatalogo\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\Bert\source\repos\APICatalogo\APICatalogo\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\Bert\source\repos\APICatalogo\APICatalogo\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll
+C:\Users\Bert\source\repos\APICatalogo\APICatalogo\obj\Debug\net8.0\APICatalogo.sourcelink.json
