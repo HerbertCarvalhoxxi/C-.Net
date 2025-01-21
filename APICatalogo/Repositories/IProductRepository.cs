@@ -6,7 +6,8 @@ namespace APICatalogo.Repositories
     public interface IProductRepository : IRepository<Product>
     {
         //IEnumerable<Product> GetProductsPagination(ProductParams productParams);
-        PagedList<Product> GetProductsPagination(ProductParams productParams);
-        IEnumerable<Product> GetProductsCategories(int id);
+        Task<PagedList<Product>> GetProductsPaginationAsync(ProductParams productParams);
+        Task<PagedList<Product>> GetFiltedPricesAsync(FilterPriceProducts filterPriceProducts);
+        
     }
 }

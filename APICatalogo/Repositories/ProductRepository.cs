@@ -18,18 +18,36 @@ namespace APICatalogo.Repositories
         //  .Take(productParams.PageSize).ToList();
         //}
 
-        public PagedList<Product> GetProductsPagination(ProductParams productParams)
+        public async Task<PagedList<Product>> GetProductsPaginationAsync(ProductParams productParams)
         {
-            IQueryable<Product> products = GetAll().OrderBy(x => x.ProductId).AsQueryable(); //recebe IQueryable de products
-            PagedList<Product> Orderproducts = PagedList<Product>.ToPagedList(products, productParams.PageNumber, productParams.PageSize);
+            IQueryable<Product> products = _context.Products.AsQueryable();
+            //IQueryable<Product> orderProducts = products.OrderBy(p => p.ProductId).AsQueryable();
+            return await PagedList<Product>.ToPagedList(products, productParams.PageNumber, productParams.PageSize);
             //Cria um pagedList usando ToPagedList
-            return Orderproducts;
+            
         }
 
-        public IEnumerable<Product> GetProductsCategories(int id)
+        public async Task<PagedList<Product>> GetFiltedPricesAsync(FilterPriceProducts filterPriceProducts)
         {
+            IQueryable<Product> products = _context.Products.AsQueryable();
+            if (filterPriceProducts.Price.HasValue && !string.IsNullOrEmpty(filterPriceProducts.CriterionPrice))
+            {
+                if (filterPriceProducts.CriterionPrice.Equals("maior", StringComparison.OrdinalIgnoreCase))
+                {
+                    products = products.Where(p => p.Price > filterPriceProducts.Price.Value).OrderBy(p => p.Price);
+                }
+                if(filterPriceProducts.CriterionPrice.Equals("menor", StringComparison.OrdinalIgnoreCase))
+                {
+                    products = products.Where(p => p.Price < filterPriceProducts.Price.Value).OrderBy(p => p.Price);
+                }
+                if(filterPriceProducts.CriterionPrice.Equals("igual", StringComparison.OrdinalIgnoreCase))
+                {
+                    products = products.Where(p => p.Price == filterPriceProducts.Price.Value);
+                }
+            }
+            //IQueryable<Product> orderProducts = products.OrderBy(p => p.ProductId).AsQueryable();
+            return await PagedList<Product>.ToPagedList(products, filterPriceProducts.PageNumber, filterPriceProducts.PageSize);
             
-            return GetAll().Where(c=> c.CategoryId == id);
         }
     }
 }
